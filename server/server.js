@@ -20,11 +20,20 @@ const commonFeatureRouter = require("./routes/common/feature-routes");
 // Init app
 const app = express();
 const PORT = process.env.PORT || 50001;
-
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://e-commerce-vert-two-19.vercel.app"
+];
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend dev server
+    origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
     methods: ["GET", "POST", "DELETE", "PUT"],
     allowedHeaders: [
       "Content-Type",
