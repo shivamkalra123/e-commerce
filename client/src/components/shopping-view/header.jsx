@@ -76,13 +76,14 @@ function HeaderRightContent() {
   }
 
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
-  }, [dispatch]);
-
-  console.log(cartItems, "sangam");
+    if (user?.id) {
+      dispatch(fetchCartItems(user.id));
+    }
+  }, [dispatch, user?.id]);
 
   return (
     <div className="flex lg:items-center lg:flex-row flex-col gap-4">
+      {/* Cart */}
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
@@ -106,11 +107,12 @@ function HeaderRightContent() {
         />
       </Sheet>
 
+      {/* Profile dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Avatar className="bg-black">
             <AvatarFallback className="bg-black text-white font-extrabold">
-              {user?.userName[0].toUpperCase()}
+              {user?.userName?.[0]?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
@@ -132,16 +134,33 @@ function HeaderRightContent() {
   );
 }
 
+// 👇 simple component for logged-out actions
+function GuestActions() {
+  return (
+    <div className="flex items-center gap-4">
+      <Link to="/auth/login">
+        <Button variant="default">Login</Button>
+      </Link>
+      <Link to="/auth/register">
+        <Button variant="outline">Register</Button>
+      </Link>
+    </div>
+  );
+}
+
 function ShoppingHeader() {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
-        <Link to="/shop/home" className="flex items-center gap-2">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2">
           <HousePlug className="h-6 w-6" />
-          <span className="font-bold">Ecommerce</span>
+          <span className="font-bold">Branded Parcels</span>
         </Link>
+
+        {/* Mobile menu */}
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="lg:hidden">
@@ -151,15 +170,18 @@ function ShoppingHeader() {
           </SheetTrigger>
           <SheetContent side="left" className="w-full max-w-xs">
             <MenuItems />
-            <HeaderRightContent />
+            {isAuthenticated ? <HeaderRightContent /> : <GuestActions />}
           </SheetContent>
         </Sheet>
+
+        {/* Desktop menu */}
         <div className="hidden lg:block">
           <MenuItems />
         </div>
 
+        {/* Desktop right side */}
         <div className="hidden lg:block">
-          <HeaderRightContent />
+          {isAuthenticated ? <HeaderRightContent /> : <GuestActions />}
         </div>
       </div>
     </header>

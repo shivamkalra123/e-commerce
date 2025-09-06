@@ -33,33 +33,25 @@ function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
+  if (isLoading) return <Skeleton className="w-[800px] bg-black h-[600px]" />;
 
   console.log(isLoading, user);
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <Routes>
-        <Route
-          path="/"
-          element={
-            <CheckAuth
-              isAuthenticated={isAuthenticated}
-              user={user}
-            ></CheckAuth>
-          }
-        />
-        <Route
-          path="/auth"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <AuthLayout />
-            </CheckAuth>
-          }
-        >
+        {/* Public Home at "/" with ShoppingLayout (navbar + footer) */}
+        <Route path="/" element={<ShoppingLayout />}>
+          <Route index element={<ShoppingHome />} />
+        </Route>
+
+        {/* Auth Routes (login, register) */}
+        <Route path="/auth" element={<AuthLayout />}>
           <Route path="login" element={<AuthLogin />} />
           <Route path="register" element={<AuthRegister />} />
         </Route>
+
+        {/* Admin Routes (protected) */}
         <Route
           path="/admin"
           element={
@@ -73,22 +65,27 @@ function App() {
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />
         </Route>
-        <Route
-          path="/shop"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <ShoppingLayout />
-            </CheckAuth>
-          }
-        >
-          <Route path="home" element={<ShoppingHome />} />
+
+        {/* Shopping Routes */}
+        <Route path="/shop" element={<ShoppingLayout />}>
           <Route path="listing" element={<ShoppingListing />} />
-          <Route path="checkout" element={<ShoppingCheckout />} />
+
+          {/* Checkout guarded by auth */}
+          <Route
+            path="checkout"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <ShoppingCheckout />
+              </CheckAuth>
+            }
+          />
+
           <Route path="account" element={<ShoppingAccount />} />
           <Route path="paypal-return" element={<PaypalReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="search" element={<SearchProducts />} />
         </Route>
+
         <Route path="/unauth-page" element={<UnauthPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -47,15 +47,19 @@ function AdminProducts() {
   function onSubmit(event) {
     event.preventDefault();
 
+    // Handle optional salePrice -> save as null if empty
+    const finalFormData = {
+      ...formData,
+      salePrice: formData.salePrice === "" ? null : formData.salePrice,
+    };
+
     currentEditedId !== null
       ? dispatch(
           editProduct({
             id: currentEditedId,
-            formData,
+            formData: finalFormData,
           })
         ).then((data) => {
-          console.log(data, "edit");
-
           if (data?.payload?.success) {
             dispatch(fetchAllProducts());
             setFormData(initialFormData);
@@ -65,7 +69,7 @@ function AdminProducts() {
         })
       : dispatch(
           addNewProduct({
-            ...formData,
+            ...finalFormData,
             image: uploadedImageUrl,
           })
         ).then((data) => {
@@ -75,7 +79,7 @@ function AdminProducts() {
             setImageFile(null);
             setFormData(initialFormData);
             toast({
-              title: "Product add successfully",
+              title: "Product added successfully",
             });
           }
         });
@@ -91,7 +95,10 @@ function AdminProducts() {
 
   function isFormValid() {
     return Object.keys(formData)
-      .filter((currentKey) => currentKey !== "averageReview")
+      .filter(
+        (currentKey) =>
+          currentKey !== "averageReview" && currentKey !== "salePrice"
+      ) // ✅ exclude averageReview + salePrice
       .map((key) => formData[key] !== "")
       .every((item) => item);
   }
@@ -99,8 +106,6 @@ function AdminProducts() {
   useEffect(() => {
     dispatch(fetchAllProducts());
   }, [dispatch]);
-
-  console.log(formData, "productList");
 
   return (
     <Fragment>
@@ -113,6 +118,7 @@ function AdminProducts() {
         {productList && productList.length > 0
           ? productList.map((productItem) => (
               <AdminProductTile
+                key={productItem.id}
                 setFormData={setFormData}
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog}
                 setCurrentEditedId={setCurrentEditedId}

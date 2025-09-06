@@ -84,6 +84,13 @@ function ShoppingListing() {
   }
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
+      if (!user) {
+    toast({
+      title: "Please Sign In to add to cart",
+      variant: "destructive",
+    });
+    return;
+  }
     console.log(cartItems);
     let getCartItems = cartItems.items || [];
 
